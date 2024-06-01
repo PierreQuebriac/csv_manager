@@ -1,15 +1,3 @@
-// Requirements:
-// Shall open a CSV file
-// Shall create a CSV file (with headers)
-// Shall parse the header
-// Shall display range or selected rows
-// Shall have a append option
-// Shall have a small menu
-// Shall have a find option
-// Shall have a remove option (line number/finder)
-// Shall have an insert option
-// Shall take CL arguments
-
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
