@@ -1,4 +1,6 @@
-use std::path::PathBuf;
+use std::{error::Error, path::PathBuf};
+
+pub mod csv_io;
 
 use clap::{Parser, Subcommand};
 
@@ -8,51 +10,41 @@ struct CSVCli {
     #[arg(short, long, value_name = "FILE")]
     file: Option<PathBuf>,
 
-    #[arg(short, long, action = clap::ArgAction::Count)]
-    debug: u8,
-
     #[command(subcommand)]
     command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
-    /// does testing things
-    Test {
-        /// lists test values
-        #[arg(short, long)]
-        list: bool,
-    },
-
     Create {},
+    Update {},
+    Insert {},
+    Delete {},
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let cli = CSVCli::parse();
 
     if let Some(file_path) = cli.file.as_deref() {
-        println!("Value for config: {}", file_path.display());
-    }
-    match cli.debug {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        _ => println!("Don't be crazy"),
+        if !file_path.exists() {
+            return Err(Box::<dyn Error>::from(format!(
+                "The file: {} does not exist",
+                file_path.display()
+            )));
+        }
+
+        csv_io::parse_csv(file_path.to_path_buf())?;
     }
 
     match &cli.command {
-        Some(Commands::Test { list }) => {
-            if *list {
-                println!("Printing testing lists...");
-            } else {
-                println!("Not printing testing lists...");
-            }
-        }
         Some(Commands::Create {}) => {
             println!("I am suppose to create stuff")
         }
         None => {}
+        _ => {
+            println!("Unknown command")
+        }
     }
 
-    println!("Hello, world!");
+    Ok(())
 }
